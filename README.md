@@ -5,7 +5,7 @@ This is an SQL based differential privacy application.
 
 It is intended to fit as an interface on top of a Database and which will return differentially private responses to any queries.
 
-To use the code in this repository, pull this repository into your Snowflake account
+The DP theory is based upon the following textbook: https://programming-dp.com/book.pdf
 
 ## Summary
 
