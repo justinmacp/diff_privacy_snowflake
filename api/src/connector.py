@@ -1,23 +1,22 @@
 from flask import Blueprint, request, abort, jsonify, make_response
-import json
 import datetime
-import snowpark_src.laplacian_mechanisms as lm
 
 # Make the Snowflake connection
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 import snowflake.connector
 from snowflake.connector import DictCursor
-from snowflake.snowpark import context
 from api.src.config import creds
+
+
 def connect() -> snowflake.connector.SnowflakeConnection:
     if 'private_key' in creds:
         if not isinstance(creds['private_key'], bytes):
             p_key = serialization.load_pem_private_key(
-                    creds['private_key'].encode('utf-8'),
-                    password=None,
-                    backend=default_backend()
-                )
+                creds['private_key'].encode('utf-8'),
+                password=None,
+                backend=default_backend()
+            )
             pkb = p_key.private_bytes(
                 encoding=serialization.Encoding.DER,
                 format=serialization.PrivateFormat.PKCS8,
@@ -25,29 +24,15 @@ def connect() -> snowflake.connector.SnowflakeConnection:
             creds['private_key'] = pkb
     return snowflake.connector.connect(**creds)
 
+
 conn = connect()
 
 # Make the API endpoints
 connector = Blueprint('connector', __name__)
 
-## Top 10 customers in date range
+# Top 10 customers in date range
 dateformat = '%Y-%m-%d'
 
-@connector.route('/dp_count')
-def dp_count():
-    # Validate arguments
-    privacy_budget_str = request.args.get('privacy_budget')
-    table_name_str = request.args.get('table_name')
-    try:
-        privacy_budget = float(privacy_budget_str)
-    except:
-        abort(400, "Invalid privacy budget. Please enter a number")
-    session = context.get_active_session()
-    try:
-        res = lm.dp_count(session, table_name_str, privacy_budget)
-        return make_response(jsonify(res.fetchall()))
-    except:
-        abort(500, "Error reading from Snowflake. Check the logs for details.")
 
 @connector.route('/customers/top10')
 def customers_top10():
@@ -77,11 +62,12 @@ def customers_top10():
     except:
         abort(500, "Error reading from Snowflake. Check the logs for details.")
 
-## Monthly sales for a clerk in a year
+
+# Monthly sales for a clerk in a year
 @connector.route('/clerk/<clerkid>/yearly_sales/<year>')
-def clerk_montly_sales(clerkid, year):
+def clerk_monthly_sales(clerkid, year):
     # Validate arguments
-    try: 
+    try:
         year_int = int(year)
     except:
         abort(400, "Invalid year.")
