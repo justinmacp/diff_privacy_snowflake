@@ -1,13 +1,15 @@
 from flask import Blueprint, request, abort, jsonify, make_response
 import json
 import datetime
+from snowpark_src import laplacian_mechanisms
 
 # Make the Snowflake connection
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 import snowflake.connector
 from snowflake.connector import DictCursor
-from config import creds
+from snowflake.snowpark import context
+from api.src.config import creds
 def connect() -> snowflake.connector.SnowflakeConnection:
     if 'private_key' in creds:
         if not isinstance(creds['private_key'], bytes):
@@ -30,6 +32,22 @@ connector = Blueprint('connector', __name__)
 
 ## Top 10 customers in date range
 dateformat = '%Y-%m-%d'
+
+@connector.route('/dp_count')
+def dp_count():
+    # Validate arguments
+    privacy_budget_str = request.args.get('privacy_budget')
+    table_name_str = request.args.get('table_name')
+    try:
+        privacy_budget = float(privacy_budget_str)
+    except:
+        abort(400, "Invalid privacy budget. Please enter a number")
+    session = context.get_active_session()
+    try:
+        res = laplacian_mechanisms.dp_count(session, table_name_str, privacy_budget)
+        return make_response(jsonify(res.fetchall()))
+    except:
+        abort(500, "Error reading from Snowflake. Check the logs for details.")
 
 @connector.route('/customers/top10')
 def customers_top10():
