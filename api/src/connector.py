@@ -1,7 +1,7 @@
 from flask import Blueprint, request, abort, jsonify, make_response
 import json
 import datetime
-from snowpark_src import laplacian_mechanisms
+import snowpark_src.laplacian_mechanisms as lm
 
 # Make the Snowflake connection
 from cryptography.hazmat.backends import default_backend
@@ -44,7 +44,7 @@ def dp_count():
         abort(400, "Invalid privacy budget. Please enter a number")
     session = context.get_active_session()
     try:
-        res = laplacian_mechanisms.dp_count(session, table_name_str, privacy_budget)
+        res = lm.dp_count(session, table_name_str, privacy_budget)
         return make_response(jsonify(res.fetchall()))
     except:
         abort(500, "Error reading from Snowflake. Check the logs for details.")
