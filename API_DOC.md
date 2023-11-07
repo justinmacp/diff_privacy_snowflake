@@ -1,6 +1,6 @@
 Basic command:
 
->curl -X GET http://localhost:8001/snowpark/<your command>?arg1=value1&arg2=value2"
+>curl -X GET http://localhost:8001/snowpark/\<your command\>?arg1=value1&arg2=value2"
 
 The allowed commands and their arguments:
 
