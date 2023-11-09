@@ -35,9 +35,12 @@ snowpark = Blueprint('snowpark', __name__)
 # Top 10 customers in date range
 dateformat = '%Y-%m-%d'
 
+total_budget = 100
+
 
 @snowpark.route('/dp_sum')
 def dp_sum():
+    global total_budget
     # Validate arguments
     privacy_budget_str = request.args.get('privacy_budget')
     table_name_str = request.args.get('table_name')
@@ -48,11 +51,18 @@ def dp_sum():
         privacy_budget = float(privacy_budget_str)
         lower_bound = int(lower_bound_str)
         upper_bound = int(upper_bound_str)
+        if privacy_budget <= 0 or total_budget - privacy_budget < 0:
+            privacy_budget_error = ValueError(
+                "The privacy budget should be greater 0 and smaller than your overall budget"
+            )
+            raise privacy_budget_error
     except:
-        abort(400, "Invalid privacy budget, lower bound or upper bound. Please enter a number")
+        abort(400, "Invalid privacy budget, lower bound or upper bound.")
     try:
         df = session.table(table_name_str)
         res = laplacian_mechanisms.dp_sum(df, f.col(column_name_string), privacy_budget, lower_bound, upper_bound)
+        total_budget = total_budget - privacy_budget
+        print("Your remaining budget is ", total_budget)
         return make_response(jsonify(res))
     except:
         abort(500, "Error reading from Snowflake. Check the logs for details.")
@@ -60,16 +70,26 @@ def dp_sum():
 
 @snowpark.route('/dp_count')
 def dp_count():
+    global total_budget
     # Validate arguments
     privacy_budget_str = request.args.get('privacy_budget')
     table_name_str = request.args.get('table_name')
+    privacy_budget = float(privacy_budget_str)
     try:
         privacy_budget = float(privacy_budget_str)
+        
+        if privacy_budget <= 0 or total_budget - privacy_budget < 0:
+            privacy_budget_error = ValueError(
+                "The privacy budget should be greater 0 and smaller than your overall budget"
+            )
+            raise privacy_budget_error 
     except:
-        abort(400, "Invalid privacy budget. Please enter a number")
+        abort(400, "Invalid privacy budget.")
     try:
         df = session.table(table_name_str)
         res = laplacian_mechanisms.dp_count(df, privacy_budget)
+        total_budget = total_budget - privacy_budget
+        print("Your remaining budget is ", total_budget)
         return make_response(jsonify(res))
     except:
         abort(500, "Error reading from Snowflake. Check the logs for details.")
