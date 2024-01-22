@@ -50,3 +50,54 @@ def dp_sum(
     )
     df = df.agg(f.sum(col))
     return np.random.laplace(df.collect()[0][0], sensitivity / epsilon)
+
+
+def dp_average(
+        df: snowpark.DataFrame,
+        col: snowpark.Column,
+        epsilon: float,
+        lower_bound: int,
+        upper_bound: int
+) -> float:
+    """Returns a differentially private average
+
+    :param df: The dataframe which contains the numerical column upon which the average is to be computed
+    :param col: The numerical column in the data frame upon which the average is to be computed
+    :param epsilon: The privacy budget
+    :param lower_bound: In order to guarantee that the sum operation has a limited sensitivity all data points must be
+        clipped with a lower bound
+    :param upper_bound: The upper bound of the clipping to ensure limited sensitivity of the average
+    :return: The average of the numerical column with laplacian added nose according to the privacy budget
+    """
+    sensitivity = 1 + upper_bound - lower_bound
+    df = df.withColumn(
+        col.getName(),
+        F.when(col > upper_bound, upper_bound).otherwise(col)
+        .when(col < lower_bound, lower_bound).otherwise(col)
+    )
+    df = df.agg(F.average(col))
+    return np.random.laplace(df.collect()[0][0], sensitivity / epsilon)
+
+
+def dp_histogram(
+        df: snowpark.DataFrame,
+        col: snowpark.Column,
+        epsilon: float,
+        lower_bound: int,
+        upper_bound: int,
+        bins: int,
+        hist_range: (float, float)
+) -> (np.array, np.array):
+    sensitivity = 1 + upper_bound - lower_bound
+    df = df.withColumn(
+        col.getName(),
+        F.when(col > upper_bound, upper_bound).otherwise(col)
+        .when(col < lower_bound, lower_bound).otherwise(col)
+    )
+    histogram = np.zeros(bins)
+    histogram_edges = np.zeros(bins)
+    bin_size = (hist_range[1] - hist_range[0])/bins
+    for bin in range(0, bins):
+        histogram_edges[bin] = hist_range[0] + bin * bin_size
+        histogram[bin] =
+    return histogram, histogram_edges
