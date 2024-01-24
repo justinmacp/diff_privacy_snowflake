@@ -86,7 +86,7 @@ def dp_histogram(
         epsilon: float,
         lower_bound: int,
         upper_bound: int,
-        bins: int,
+        number_of_buckets: int,
         hist_range: (float, float)
 ) -> (np.array, np.array):
     sensitivity = 1 + upper_bound - lower_bound
@@ -95,10 +95,14 @@ def dp_histogram(
         F.when(col > upper_bound, upper_bound).otherwise(col)
         .when(col < lower_bound, lower_bound).otherwise(col)
     )
-    histogram = np.zeros(bins)
-    histogram_edges = np.zeros(bins)
-    bin_size = (hist_range[1] - hist_range[0])/bins
-    for bin in range(0, bins):
-        histogram_edges[bin] = hist_range[0] + bin * bin_size
-        histogram[bin] =
-    return histogram, histogram_edges
+    histogram = np.zeros(number_of_buckets)
+    histogram_edges = np.zeros(number_of_buckets)
+    bucket_size = (hist_range[1] - hist_range[0]) / number_of_buckets
+    for bucket in range(0, number_of_buckets):
+        histogram_edges[bucket] = hist_range[0] + bucket * bucket_size
+        histogram[bucket] = (
+            df
+            .agg(F.sum(col).when(col > histogram_edges[bucket]).when(col < histogram_edges[bucket] + bucket_size))
+            .collect()[0][0]
+        )
+    return np.random.laplace(histogram, sensitivity / epsilon), histogram_edges
