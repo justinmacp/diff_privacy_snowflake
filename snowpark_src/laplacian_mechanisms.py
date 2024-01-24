@@ -69,7 +69,8 @@ def dp_average(
     :param upper_bound: The upper bound of the clipping to ensure limited sensitivity of the average
     :return: The average of the numerical column with laplacian added nose according to the privacy budget
     """
-    sensitivity = 1 + upper_bound - lower_bound
+    sensitivity = 1 + upper_bound - lower_bound  # Sensitivity for an average operation is the sum of sensitivities of
+    # sum and count
     df = df.withColumn(
         col.getName(),
         F.when(col > upper_bound, upper_bound).otherwise(col)
