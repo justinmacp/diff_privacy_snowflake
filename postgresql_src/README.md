@@ -5,6 +5,7 @@ setup
 https://www.commandprompt.com/education/how-to-create-a-postgresql-database-in-docker/
 https://annaz4.medium.com/how-to-load-a-csv-file-into-a-remote-docker-mysql-container-fba89cf42880
 https://medium.com/@romanbessouat/deploy-and-access-a-postgres-dabatase-using-docker-and-sqlalchemy-d06de37079f8
+https://medium.com/@pooya.oladazimi/dockerizing-flask-app-with-postgres-a-step-by-step-guide-e9fc9939deff
 
 docker pull postgres
 
@@ -16,7 +17,7 @@ docker exec -it postgresCont bash
 
 psql -h localhost -U postgres
 
-CREATE DATABASE titanic_passengers;
+CREATE DATABASE titanic;
 
 \l
 

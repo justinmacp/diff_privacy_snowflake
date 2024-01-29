@@ -1,3 +1,4 @@
+version: '3'
 services:
   db:
     image: postgres
@@ -12,3 +13,15 @@ services:
     volumes:
       - ./db:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+  api:
+      platform: linux/amd64
+      depends_on:
+          - db
+      build:
+        context: ./
+        dockerfile: ./Dockerfile
+
+volumes:
+  db:
+    driver: local
