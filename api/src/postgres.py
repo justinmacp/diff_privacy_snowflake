@@ -1,14 +1,21 @@
 from flask import Blueprint, request, abort, make_response, jsonify
 
 # Make the postgres connection
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
-from sqlalchemy import create_engine, Connection
-from config import postgres_creds
+from sqlalchemy import create_engine, Connection, URL
+from api.src.config import postgres_creds
+from postgresql_src import laplacian_mechanisms
 
 
 def connect() -> Connection:
-    engine = create_engine(postgres_creds.database_uri)
+    url_object = URL.create(
+        drivername=postgres_creds['sql_dialect'] + "+" + postgres_creds['adapter'],
+        username=postgres_creds['username'],
+        password=postgres_creds['password'],
+        host=postgres_creds['host'],
+        port=postgres_creds['port'],
+        database=postgres_creds['database']
+    )
+    engine = create_engine(url_object)
     return engine.connect()
 
 
@@ -38,7 +45,7 @@ def dp_sum():
         total_budget = (
             budgets_df
             .select(privacy_budget_col)
-            .where(f.col(api_service_col) == creds['user'])
+            .where(f.col(api_service_col) == postgres_creds['user'])
             .collect()[0][0]
         )
         if privacy_budget <= 0 or total_budget - privacy_budget < 0:
@@ -55,7 +62,7 @@ def dp_sum():
             budgets_df
             .withColumn(
                 privacy_budget_col,
-                f.when(f.col(api_service_col) == creds['user'], total_budget - privacy_budget)
+                f.when(f.col(api_service_col) == postgres_creds['user'], total_budget - privacy_budget)
                 .otherwise(f.col(api_service_col)))
             .write
             .saveAsTable(user_privacy_budgets_table_str, mode=write_mode)

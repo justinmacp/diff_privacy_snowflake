@@ -12,3 +12,13 @@ CREATE TABLE passengers (
     Cabin VARCHAR(15),
     Embarked CHAR(1)
 );
+
+COPY passengers(PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked)
+FROM '/app/train.csv' DELIMITER ',' CSV HEADER;
+
+
+CREATE TABLE users (
+    UserId INT PRIMARY KEY,
+    PrivacyBudget FLOAT,
+    APIService VARCHAR(255)
+);

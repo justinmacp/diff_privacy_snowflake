@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, make_response, send_file
-from snowpark import snowpark
+from api.src.snowpark import snowpark
+from api.src.postgres import postgres
 
 app = Flask(__name__)
 app.register_blueprint(snowpark, url_prefix='/snowpark')
+app.register_blueprint(postgres, url_prefix='/postgres')
 
 
 @app.route("/")
