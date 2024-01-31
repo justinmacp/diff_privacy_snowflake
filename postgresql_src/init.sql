@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS passengers;
+
 CREATE TABLE passengers (
     PassengerId INT PRIMARY KEY,
     Survived INT,
@@ -16,6 +18,7 @@ CREATE TABLE passengers (
 COPY passengers(PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked)
 FROM '/app/train.csv' DELIMITER ',' CSV HEADER;
 
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     UserId INT PRIMARY KEY,

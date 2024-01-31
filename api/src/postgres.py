@@ -1,4 +1,4 @@
-from flask import Blueprint, request, abort, make_response, jsonify
+from flask import Blueprint, request, abort, make_response, jsonify, Flask
 
 # Make the postgres connection
 from sqlalchemy import create_engine, Connection, URL
@@ -29,35 +29,33 @@ api_service_col = "api_service"
 write_mode = "overwrite"
 
 
-@postgres.route('/dp_sum')
-def dp_sum():
+class BudgetError:
+    pass
+
+
+@postgres.route('passengers/dp_count')
+def dp_count():
     # Validate arguments
     privacy_budget_str = request.args.get('privacy_budget')
-    table_name_str = request.args.get('table_name')
-    column_name_string = request.args.get('column_name')
-    lower_bound_str = request.args.get('lower_bound')
-    upper_bound_str = request.args.get('upper_bound')
     try:
         privacy_budget = float(privacy_budget_str)
-        lower_bound = int(lower_bound_str)
-        upper_bound = int(upper_bound_str)
         budgets_df = session.table(user_privacy_budgets_table_str)
         total_budget = (
             budgets_df
-            .select(privacy_budget_col)
             .where(f.col(api_service_col) == postgres_creds['user'])
-            .collect()[0][0]
+            .select(privacy_budget_col)
         )
+        total_budget = total_budget.collect()[0][0]
         if privacy_budget <= 0 or total_budget - privacy_budget < 0:
             privacy_budget_error = ValueError(
-                "The privacy budget should be greater 0 and smaller than your overall budget."
+                "The privacy budget should be greater 0 and smaller than your overall budget"
             )
             raise privacy_budget_error
-    except:
-        abort(400, "Invalid privacy budget, lower bound or upper bound.")
+    except BudgetError:
+        abort(400, "Invalid privacy budget.")
     try:
         df = session.table(table_name_str)
-        res = laplacian_mechanisms.dp_sum(df, f.col(column_name_string), privacy_budget, lower_bound, upper_bound)
+        res = laplacian_mechanisms.dp_count(df, privacy_budget)
         (
             budgets_df
             .withColumn(
@@ -69,5 +67,5 @@ def dp_sum():
         )
         print("Your remaining budget is ", total_budget - privacy_budget)
         return make_response(jsonify(res))
-    except:
+    except :
         abort(500, "Error reading from Snowflake. Check the logs for details.")

@@ -13,6 +13,7 @@ services:
     volumes:
       - ./db:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./titanic_data:/app
 
   api:
       platform: linux/amd64
