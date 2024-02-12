@@ -1,5 +1,5 @@
 import snowflake.snowpark as snowpark
-import snowflake.snowpark.functions as f
+import snowflake.snowpark.functions as F
 import numpy as np
 
 
@@ -45,10 +45,10 @@ def dp_sum(
     sensitivity = upper_bound - lower_bound  # Sensitivity for a sum operation is the range of possibilities
     df = df.withColumn(
         col.getName(),
-        f.when(col > upper_bound, upper_bound).otherwise(col)
+        F.when(col > upper_bound, upper_bound).otherwise(col)
         .when(col < lower_bound, lower_bound).otherwise(col)
     )
-    df = df.agg(f.sum(col))
+    df = df.agg(F.sum(col))
     return np.random.laplace(df.collect()[0][0], sensitivity / epsilon)
 
 

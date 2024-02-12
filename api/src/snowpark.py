@@ -4,7 +4,7 @@ from flask import Blueprint, request, abort, make_response, jsonify
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from snowflake.snowpark import Session
-import snowflake.snowpark.functions as f
+from snowflake.snowpark import functions as f
 from api.src.config import creds
 from snowpark_src import laplacian_mechanisms
 

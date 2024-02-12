@@ -18,14 +18,14 @@ To ensure, that the user gets what they need and the data owner can retain the p
 ![](Documentation/Architecture.png)
 
 At the heart of the Architecture is the private DB. It contains private Information that the owner does not want to leak.
-In this project, the private DB is hosted on Snowflake. The REST API built with Flask and Snowpark accesses the Private DB via a Snowflake technical User that has Data access.
+In this project, the private DB is hosted on Snowflake. The REST API built with Flask and Snowpark accesses the Private DB via a Snowflake technical Users that has Data access.
 The API exposes only queries enveloped by privacy mechanisms. These privacy mechanisms have a "privacy cost".
 The amount that a query costs will be subtracted from the technical user's privacy budget. 
-When an API request is made, the API first reads the privacy budget from the User DB. Once the privacy budget of the technical user is spent, an API call will not return any data.
+When an API request is made, the API first reads the privacy budget from the Users DB. Once the privacy budget of the technical user is spent, an API call will not return any data.
 The differentially private query result is returned to the user.
 
 Upsides:
-1. There is a centrally managed User DB that tracks each user's privacy budget.
+1. There is a centrally managed Users DB that tracks each user's privacy budget.
 2. It is a zero trust system in regard to the data analyst. The analyst can use the API however they want.
 3. The privacy budget updates are made atomically and are robust 
 

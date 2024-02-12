@@ -1,18 +1,18 @@
-from sqlalchemy import create_engine, insert, text
-import time
-import pandas as pd
+import numpy as np
+from sqlalchemy.orm import Query
 
 
-def main():
-    connection_url = "postgresql+psycopg2://postgres:postgres@db:5432/DB"
-    engine = create_engine(connection_url)
-    connection = engine.connect()
-    query = text("SELECT * FROM passengers")
-    connection.execute(query)
-    connection.commit()
-    print("done")
+def dp_count(table_query: Query, epsilon: float) -> float:
+    """Returns a differentially private row count.
 
+    Parameters
+    ----------
+    table_query : The table on which the count is performed
+    epsilon : The privacy budget for the query
 
-if __name__ == "__main__":
-    time.sleep(5)
-    main()
+    Returns
+    -------
+    float : The row count of the dataframe with laplacian added nose according to the privacy budget
+    """
+    sensitivity = 1
+    return np.random.laplace(table_query.count(), sensitivity / epsilon)

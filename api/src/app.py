@@ -25,23 +25,6 @@ db.init_app(app)
 app.register_blueprint(postgres, url_prefix='/postgres')
 
 
-class Passengers(db.Model):
-    __table_name__ = 'passengers'
-
-    passengerid = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    survived = db.Column(db.Integer, nullable=False)
-    pclass = db.Column(db.Integer, nullable=False)
-    name = db.Column(db.String(), nullable=False)
-    sex = db.Column(db.String(), nullable=False)
-    age = db.Column(db.Float(), nullable=True)
-    sibsp = db.Column(db.Integer, nullable=False)
-    parch = db.Column(db.Integer, nullable=False)
-    ticket = db.Column(db.String(), nullable=False)
-    fare = db.Column(db.Float(), nullable=True)
-    cabin = db.Column(db.String(), nullable=True)
-    embarked = db.Column(db.String(), nullable=False)
-
-
 with app.app_context():
     db.create_all()
 

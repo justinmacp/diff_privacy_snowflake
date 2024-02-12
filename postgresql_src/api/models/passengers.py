@@ -1,8 +1,8 @@
 from postgresql_src.api.database import db
 
 
-class Passenger(db.Model):
-    __table_name__ = 'cars'
+class Passengers(db.Model):
+    __table_name__ = 'passengers'
 
     passenger_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     survived = db.Column(db.Integer, nullable=False)
@@ -36,18 +36,6 @@ class Passenger(db.Model):
             'passenger_id': self.passenger_id,
             'name': self.name
         }
-
-    def buy_car(self):
-        record = Passenger.query.filter(Passenger.passenger_id == self.passenger_id).first()
-        if not record:
-            db.session.add(self)
-            db.session.commit()
-
-        return True
-
-    def get_user_cars(self):
-        records = Passenger.query.filter(Passenger.passenger_id == self).all()
-        return [record.to_dict() for record in records]
 
     def __repr__(self):
         return f"<Passenger {self.age}>"
